@@ -44,6 +44,13 @@ async def get_count_all_users() -> int:
     return count
 
 
+async def get_users():
+    async with async_session() as session:
+        res = await session.execute(select(User))
+
+    return res.scalars().all()
+
+
 async def users_for_today_count() -> int:
     query = select(func.count('*')).select_from(User).where(func.DATE(User.registration_date) == date.today())
     async with async_session() as session:

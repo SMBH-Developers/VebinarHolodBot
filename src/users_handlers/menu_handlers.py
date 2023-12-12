@@ -5,51 +5,50 @@ from aiogram.dispatcher.storage import FSMContext
 
 from loader import dp
 from texts import menu_registration, menu_about_web, menu_about_anastasia, menu_present, main_menu
-from kbs import registration_board, main_board, back_button
+from kbs import register_button
 from src.constants import DATA_DIR
 from src.models.db_sendings import mark_got_autosending_1, mark_got_autosending_2
+from src.models.db import check_user
+from src.states import States
 
 
-@dp.callback_query_handler(Text("register"))
-async def registration_handler(call: types.CallbackQuery):
-    await call.message.edit_text(menu_registration, reply_markup=registration_board, parse_mode="Markdown")
-    await mark_got_autosending_2(call.from_user.id)
-    print("register!")
+@dp.message_handler(Text("Регистрация"))
+async def registration_handler(message: types.Message):
+    await message.answer(menu_registration, reply_markup=register_button, parse_mode="Markdown")
+    await mark_got_autosending_2(message.from_user.id)
 
-@dp.callback_query_handler(Text("AboutWeb"))
-async def about_web_handler(call: types.CallbackQuery, state: FSMContext):
-    video_note_id = await call.bot.send_video_note(call.message.chat.id, video_note=open(DATA_DIR / "media" / "video.mp4", "rb"))
-    await state.update_data({"video_note_id":video_note_id.message_id})
-
-    await call.message.delete()
-    await asyncio.sleep(1)
-    await call.message.answer(menu_about_web(), reply_markup=registration_board, parse_mode="Markdown")
-    await mark_got_autosending_1(call.from_user.id)
-
-
-@dp.callback_query_handler(Text("Anastasia"))
-async def about_anastasia_handler(call: types.CallbackQuery, state: FSMContext):
+@dp.message_handler(Text("Узнать о вебинаре"))
+async def about_web_handler(message: types.Message, state: FSMContext):
+    await message.bot.send_video_note(message.chat.id, video_note="DQACAgIAAxkBAAIBcmV4h6ugOscGJUgzLwZlz5r5RGCKAAKQOQACUsTAS9_e73rLK0n6MwQ")
     
-    await call.message.delete()
-    photo_id = await call.message.answer_photo(types.InputFile(DATA_DIR / "media" / "anastasia.jpeg"))
-    await state.update_data({"photo_id":photo_id.message_id})
-    await call.message.answer(menu_about_anastasia, reply_markup=back_button, parse_mode="Markdown")
+    await message.answer(menu_about_web(), reply_markup=register_button, parse_mode="Markdown")
+    await mark_got_autosending_1(message.from_user.id)
 
 
-@dp.callback_query_handler(Text("Present"))
-async def present_handler(call: types.CallbackQuery):
-    await call.message.edit_text(menu_present, reply_markup=back_button, parse_mode="Markdown")
-    await call.message.answer_document(types.InputFile(DATA_DIR / "media" / "ресурсные действия 01.pdf"))
+@dp.message_handler(Text("Об Анастасии"))
+async def about_anastasia_handler(message: types.Message, state: FSMContext):
+    photo_id = await message.answer_photo(types.InputFile(DATA_DIR / "media" / "anastasia.jpeg"))
+    await message.answer(menu_about_anastasia, parse_mode="Markdown")
 
 
-@dp.callback_query_handler(Text("back"))
-async def back_handler(call: types.CallbackQuery, state: FSMContext):
-    state_data = await state.get_data()
-    if state_data:
-        for message_id in state_data.values():
-            await call.bot.delete_message(call.message.chat.id, message_id)
+@dp.message_handler(Text("Подарок"))
+async def present_handler(message: types.Message):
+    await message.answer(menu_present, parse_mode="Markdown")
+    await message.answer_document(types.InputFile(DATA_DIR / "media" / "ресурсные действия 01.pdf"))
 
-        await state.finish()
+# @dp.message_handler(content_types=types.ContentType.ANY)
+# async def fgg(message):
+#     print(message)
 
-    await call.message.delete()
-    await call.message.answer(main_menu, reply_markup=main_board, parse_mode="Markdown")
+
+# @dp.callback_query_handler(Text("back"))
+# async def back_handler(message: types.Message, state: FSMContext):
+#     state_data = await state.get_data()
+#     if state_data:
+#         for message_id in state_data.values():
+#             await messagebot.delete_message(call.message.chat.id, message_id)
+
+#         await state.finish()
+
+#     await call.message.delete()
+#     await call.message.answer(main_menu, reply_markup=main_board, parse_mode="Markdown")

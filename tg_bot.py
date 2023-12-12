@@ -7,6 +7,7 @@ import kbs
 
 from aiogram import executor, types, exceptions
 from aiogram.dispatcher import FSMContext
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from datetime import datetime, timedelta
 from loguru import logger
@@ -18,11 +19,14 @@ from loader import dp
 from src.models.db import users_for_today
 from src.models.db_sendings import get_users_autosending_1, get_users_autosending_2
 import src.users_handlers
+from src.scheduler import notification_about_web
 
 
 
 
-
+scheduler = AsyncIOScheduler()
+scheduler.add_job(notification_about_web, "interval", seconds=10)
+scheduler.start()
 
 
 
@@ -54,7 +58,6 @@ async def autosending_2():
 
 async def newsletter():
     while True:
-        print("start")
         users = await users_for_today()
         if not users:
             await asyncio.sleep(5)
