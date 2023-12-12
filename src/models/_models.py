@@ -5,7 +5,8 @@ from sqlalchemy import (
     String,
     TIMESTAMP,
     func,
-    text
+    text,
+    Boolean
 )
 
 from datetime import datetime
@@ -24,3 +25,4 @@ class User(Base):
 
     got_autosending_1: Mapped[datetime | None] = mapped_column(TIMESTAMP)
     got_autosending_2: Mapped[datetime | None] = mapped_column(TIMESTAMP)
+    newsletter_sended: Mapped[bool] = mapped_column(Boolean, default=False)

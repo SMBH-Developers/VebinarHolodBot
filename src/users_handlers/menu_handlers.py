@@ -7,13 +7,14 @@ from loader import dp
 from texts import menu_registration, menu_about_web, menu_about_anastasia, menu_present, main_menu
 from kbs import registration_board, main_board, back_button
 from src.constants import DATA_DIR
+from src.models.db_sendings import mark_got_autosending_1, mark_got_autosending_2
 
 
 @dp.callback_query_handler(Text("register"))
 async def registration_handler(call: types.CallbackQuery):
-    #TODO отправить подарок
     await call.message.edit_text(menu_registration, reply_markup=registration_board, parse_mode="Markdown")
-
+    await mark_got_autosending_2(call.from_user.id)
+    print("register!")
 
 @dp.callback_query_handler(Text("AboutWeb"))
 async def about_web_handler(call: types.CallbackQuery, state: FSMContext):
@@ -23,6 +24,7 @@ async def about_web_handler(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     await asyncio.sleep(1)
     await call.message.answer(menu_about_web(), reply_markup=registration_board, parse_mode="Markdown")
+    await mark_got_autosending_1(call.from_user.id)
 
 
 @dp.callback_query_handler(Text("Anastasia"))

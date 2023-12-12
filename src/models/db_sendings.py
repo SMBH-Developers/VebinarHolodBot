@@ -6,14 +6,20 @@ from sqlalchemy.sql.expression import select, update, func, or_
 
 
 async def get_users_autosending_1():
-    async with async_session() as session:  # TODO
-        ...
-        # users = (await session.execute(select(User.id).where())).scalars().all()
-    return ...
+    async with async_session() as session: 
+        query = select(User).filter(User.got_autosending_1.isnot(None))
+        result = await session.execute(query)
+        return result.scalars().all()
+    
+
 
 
 async def mark_got_autosending_1(id_):
-    query = update(User).values(autosending_1=func.now()).where(User.id == id_)
+    """
+    Present after webinar information
+    """
+
+    query = update(User).values(got_autosending_1=func.now()).where(User.id == id_)
     async with async_session() as session:
         await session.execute(query)
         await session.commit()
@@ -21,13 +27,28 @@ async def mark_got_autosending_1(id_):
 
 async def get_users_autosending_2():
     async with async_session() as session:  # TODO
-        ...
-        # users = (await session.execute(select(User.id).where())).scalars().all()
-    return ...
+        query = select(User).filter(User.got_autosending_2.isnot(None))
+        result = await session.execute(query)
+        return result.scalars().all()
 
 
 async def mark_got_autosending_2(id_):
-    query = update(User).values(autosending_2=func.now()).where(User.id == id_)
+    """
+    Present after registration
+    """
+
+    query = update(User).values(got_autosending_2=func.now()).where(User.id == id_)
     async with async_session() as session:
         await session.execute(query)
+        await session.commit()
+
+
+async def update_autosending_1(id_: int):
+    async with async_session() as session:
+        await session.execute(update(User).where(User.id == id_).values(got_autosending_1=None))
+        await session.commit()
+
+async def update_autosending_2(id_: int):
+    async with async_session() as session:
+        await session.execute(update(User).where(User.id == id_).values(got_autosending_2=None))
         await session.commit()

@@ -22,6 +22,12 @@ async def check_user(id_: int) -> bool:
         
         return False
 
+async def update_sended(id_: int):
+    async with async_session() as session:
+        await session.execute(update(User).where(User.id == id_).values(newsletter_sended=True))
+        await session.commit()
+
+
 
 async def delete_user(id_: int):
     query = delete(User).where(User.id == id_)
@@ -38,8 +44,15 @@ async def get_count_all_users() -> int:
     return count
 
 
-async def users_for_today() -> int:
+async def users_for_today_count() -> int:
     query = select(func.count('*')).select_from(User).where(func.DATE(User.registration_date) == date.today())
     async with async_session() as session:
         count = (await session.execute(query)).scalar_one()
     return count
+
+async def users_for_today() -> list:
+    query = select(User).where(func.DATE(User.registration_date) == date.today())
+    async with async_session() as session:
+        result = await session.execute(query)
+
+    return result.scalars().all()
