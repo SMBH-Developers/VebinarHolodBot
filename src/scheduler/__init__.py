@@ -1,1 +1,0 @@
-from ._tasks import notification_about_web

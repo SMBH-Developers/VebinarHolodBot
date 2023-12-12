@@ -12,60 +12,51 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, timedelta
 from loguru import logger
 
-from src.newsletter import after_registration, send_present_after_about, send_present_after_registration
-from src.common import settings
-from src.models import db, db_sendings
-from loader import dp
-from src.models.db import users_for_today
-from src.models.db_sendings import get_users_autosending_1, get_users_autosending_2
+
+from src.common import dp
+from src.models import db
+import src.gifts_newsletters as nwsl
 import src.users_handlers
-from src.scheduler import notification_about_web
 
 
-scheduler = AsyncIOScheduler()
-# scheduler.add_jobstore()
-scheduler.add_job(notification_about_web, "interval", seconds=10)
-scheduler.start()
 
 
-async def autosending_1():
+
+async def scheduler_job():
+    users = await db.get_users()
+
+    for user in users:
+        await nwsl.send_notification_before_webinar(user[0], user[1])
+
+async def gifts():
     while True:
-        users = await get_users_autosending_1()
-
+        users = await db.get_users_to_gift(10)
+        
         for user in users:
-            await send_present_after_about(user)
+            await nwsl.send_gift(user)
 
         await asyncio.sleep(5)
 
-
-async def autosending_2():
-    while True:
-        users = await get_users_autosending_2()
-
-        for user in users:
-            await send_present_after_registration(user)
-            
-        await asyncio.sleep(5)
 
 
 async def newsletter():
     while True:
-        users = await users_for_today()
-        if not users:
-            await asyncio.sleep(5)
-            continue
+        users = await db.get_users_to_newsletter(60)
 
         for user in users:
-            await after_registration(user)
+            await nwsl.send_after_registration(user)
 
         await asyncio.sleep(5)
 
 
 async def on_startup(_):
-    asyncio.create_task(autosending_1())
-    asyncio.create_task(autosending_2())
+    asyncio.create_task(gifts())
     asyncio.create_task(newsletter())
 
+scheduler = AsyncIOScheduler()
+# scheduler.add_jobstore()
+scheduler.add_job(scheduler_job, "cron", minute=0, hour=19)
+scheduler.start()
 
 try:
     executor.start_polling(dp, on_startup=on_startup)

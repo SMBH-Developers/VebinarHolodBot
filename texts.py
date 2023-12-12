@@ -1,6 +1,6 @@
 from aiogram.utils import markdown
 from string import Template
-from datetime import datetime
+import datetime
 
 from times import get_month
 

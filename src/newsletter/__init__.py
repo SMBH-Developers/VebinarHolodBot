@@ -1,1 +1,0 @@
-from .check_users import send_present_after_about, send_present_after_registration, after_registration

@@ -22,12 +22,12 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(40))
     registration_date: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
 
-    newsletter_sended: Mapped[bool] = mapped_column(default=False)
+    newsletter_sended: Mapped[bool] = mapped_column(server_default=text("false"))
 
     state: Mapped[str] = mapped_column(String(64))
-    state_updated_at: Mapped[datetime | None] = mapped_column(TIMESTAMP)
+    state_updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
 
-    status: Mapped[str] = mapped_column(String(32), server_default=text('false'))  # Alive | dead
+    status: Mapped[str] = mapped_column(String(32), server_default=text("'alive'"))  # Alive | dead
 
 
 class Sending(Base):
