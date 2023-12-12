@@ -1,6 +1,6 @@
 from aiogram import types
 import asyncio
-from datetime import datetime as date
+from datetime import datetime
 
 
 from loader import bot
@@ -12,15 +12,16 @@ from texts import hour_after_registration
 from kbs import register_button
 
 
-async def send_present_after_about(user: User): #TODO times
-    if ((int(user.got_autosending_1.timestamp()) + (1 * 60)) - int(date.now().timestamp())) <= 0:
-        await bot.send_document(user.id, types.InputFile(DATA_DIR / "media" / "ресурсные действия 01.pdf"))
-        await update_autosending_1(user.id)
+async def send_present_after_about(user: int):  # TODO times
+    await bot.send_document(user, types.InputFile(DATA_DIR / "media" / "ресурсные действия 01.pdf"))
+    await update_autosending_1(user)
+
 
 async def send_present_after_registration(user: User):
     if ((int(user.got_autosending_2.timestamp()) + (1 * 60)) - int(date.now().timestamp())) <= 0:
         await bot.send_document(user.id, types.InputFile(DATA_DIR / "media" / "ресурсные действия 01.pdf"))
         await update_autosending_2(user.id)
+
 
 async def after_registration(user: User):#TODO USER
     

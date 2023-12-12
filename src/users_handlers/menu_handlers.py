@@ -14,27 +14,29 @@ from src.states import States
 
 @dp.message_handler(Text("Регистрация"))
 async def registration_handler(message: types.Message):
-    await message.answer(menu_registration, reply_markup=register_button, parse_mode="Markdown")
+    await message.answer(menu_registration, reply_markup=register_button)
     await mark_got_autosending_2(message.from_user.id)
+
 
 @dp.message_handler(Text("Узнать о вебинаре"))
 async def about_web_handler(message: types.Message, state: FSMContext):
-    await message.bot.send_video_note(message.chat.id, video_note="DQACAgIAAxkBAAIBcmV4h6ugOscGJUgzLwZlz5r5RGCKAAKQOQACUsTAS9_e73rLK0n6MwQ")
+    await message.answer_video_note(video_note="DQACAgIAAxkBAAIBcmV4h6ugOscGJUgzLwZlz5r5RGCKAAKQOQACUsTAS9_e73rLK0n6MwQ")
     
-    await message.answer(menu_about_web(), reply_markup=register_button, parse_mode="Markdown")
+    await message.answer(menu_about_web(), reply_markup=register_button)
     await mark_got_autosending_1(message.from_user.id)
 
 
 @dp.message_handler(Text("Об Анастасии"))
 async def about_anastasia_handler(message: types.Message, state: FSMContext):
     photo_id = await message.answer_photo(types.InputFile(DATA_DIR / "media" / "anastasia.jpeg"))
-    await message.answer(menu_about_anastasia, parse_mode="Markdown")
+    await message.answer(menu_about_anastasia)
 
 
 @dp.message_handler(Text("Подарок"))
 async def present_handler(message: types.Message):
-    await message.answer(menu_present, parse_mode="Markdown")
+    await message.answer(menu_present)
     await message.answer_document(types.InputFile(DATA_DIR / "media" / "ресурсные действия 01.pdf"))
+
 
 # @dp.message_handler(content_types=types.ContentType.ANY)
 # async def fgg(message):
@@ -51,4 +53,4 @@ async def present_handler(message: types.Message):
 #         await state.finish()
 
 #     await call.message.delete()
-#     await call.message.answer(main_menu, reply_markup=main_board, parse_mode="Markdown")
+#     await call.message.answer(main_menu, reply_markup=main_board)

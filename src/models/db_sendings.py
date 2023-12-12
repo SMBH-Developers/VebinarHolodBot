@@ -5,13 +5,12 @@ from datetime import timedelta, datetime
 from sqlalchemy.sql.expression import select, update, func, or_
 
 
-async def get_users_autosending_1():
+async def get_users_autosending_1() -> list[int]:
     async with async_session() as session: 
-        query = select(User).filter(User.got_autosending_1.isnot(None))
+        query = select(User.id).filter(User.got_autosending_1.isnot(None),
+                                    (func.now() - User.got_autosending_1) >= timedelta(minutes=10))
         result = await session.execute(query)
         return result.scalars().all()
-    
-
 
 
 async def mark_got_autosending_1(id_):
@@ -47,6 +46,7 @@ async def update_autosending_1(id_: int):
     async with async_session() as session:
         await session.execute(update(User).where(User.id == id_).values(got_autosending_1=None))
         await session.commit()
+
 
 async def update_autosending_2(id_: int):
     async with async_session() as session:

@@ -5,5 +5,5 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 
 storage = RedisStorage2(db=settings.redis_db, pool_size=40)
-bot = Bot(settings.tg_token)
+bot = Bot(settings.tg_token, parse_mode="html")
 dp = Dispatcher(bot, storage=MemoryStorage()) #TODO use redis

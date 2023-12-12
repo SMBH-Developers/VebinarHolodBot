@@ -8,7 +8,7 @@ import kbs
 from aiogram import executor, types, exceptions
 from aiogram.dispatcher import FSMContext
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
+# from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from datetime import datetime, timedelta
 from loguru import logger
 
@@ -22,20 +22,15 @@ import src.users_handlers
 from src.scheduler import notification_about_web
 
 
-
-
 scheduler = AsyncIOScheduler()
+# scheduler.add_jobstore()
 scheduler.add_job(notification_about_web, "interval", seconds=10)
 scheduler.start()
-
 
 
 async def autosending_1():
     while True:
         users = await get_users_autosending_1()
-        if not users:
-            await asyncio.sleep(5)
-            continue
 
         for user in users:
             await send_present_after_about(user)
@@ -46,9 +41,6 @@ async def autosending_1():
 async def autosending_2():
     while True:
         users = await get_users_autosending_2()
-        if not users:
-            await asyncio.sleep(5)
-            continue
 
         for user in users:
             await send_present_after_registration(user)
