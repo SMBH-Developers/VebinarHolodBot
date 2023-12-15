@@ -14,7 +14,7 @@ from kbs import register_button
 
     
 async def send_gift(user_id: int):
-    await bot.send_document(user_id, document=constants.GIFT_ID)
+    await bot.send_document(user_id, document=constants.GIFT_AFTER_REGISTER)
     await db.update_state(user_id, "main")
     await db.update_sent_sendings(user_id)
 

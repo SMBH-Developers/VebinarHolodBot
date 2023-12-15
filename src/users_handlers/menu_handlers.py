@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.filters import Text
 import asyncio
 from aiogram.dispatcher.storage import FSMContext
+from aiogram.utils.exceptions import BadRequest
 
 from src.common import dp
 from texts import menu_registration, menu_about_web, menu_about_anastasia, menu_present, main_menu
@@ -11,27 +12,31 @@ import src.models.db as db
 
 
 
-@dp.message_handler(Text("Регистрация"))
+@dp.message_handler(Text("Регистрация🌸"))
 async def registration_handler(message: types.Message):
     await message.answer(menu_registration, reply_markup=register_button)
     await db.update_state(message.from_id, "waiting_gift")
 
 
-@dp.message_handler(Text("Узнать о вебинаре"))
+@dp.message_handler(Text("Узнать о вебинаре😌"))
 async def about_web_handler(message: types.Message):
-    await message.answer_video_note(video_note=constants.VIDEO_NOTE_ID)
+    try:
+        await message.answer_video_note(video_note=constants.VIDEO_NOTE_ID)
+
+    except BadRequest:
+        ...
     
     await message.answer(menu_about_web(), reply_markup=register_button)
     await db.update_state(message.from_id, "waiting_gift")
 
 
-@dp.message_handler(Text("Об Анастасии"))
+@dp.message_handler(Text("Об Анастасии⭐️"))
 async def about_anastasia_handler(message: types.Message):
     await message.answer_photo(photo=constants.ANASTASIA_ID)
     await message.answer(menu_about_anastasia)
 
 
-@dp.message_handler(Text("Подарок"))
+@dp.message_handler(Text("Подарок🙌"))
 async def present_handler(message: types.Message):
     await message.answer(menu_present)
     await message.answer_document(document=constants.GIFT_ID)

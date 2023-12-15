@@ -55,7 +55,7 @@ async def on_startup(_):
 
 scheduler = AsyncIOScheduler()
 # scheduler.add_jobstore()
-scheduler.add_job(scheduler_job, "cron", minute=0, hour=19)
+scheduler.add_job(scheduler_job, "cron", minute=0, hour=18)
 scheduler.start()
 
 try:

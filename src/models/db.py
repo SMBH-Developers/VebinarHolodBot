@@ -74,7 +74,7 @@ async def get_users() -> List[tuple[User.id, User.name]]:
 
 async def get_users_to_gift(expired_time: int) -> list:
     async with async_session() as session:
-        query = select(User.id).where(User.status == "alive", User.state == "waiting_gift").filter((User.state_updated_at + timedelta(minutes=expired_time) <= datetime.now()))
+        query = select(User.id).where(User.status == "alive", User.state == "waiting_gift").filter((User.state_updated_at + timedelta(minutes=expired_time) <= func.now()))
         result = await session.execute(query)
 
     return result.scalars().all()
@@ -82,7 +82,7 @@ async def get_users_to_gift(expired_time: int) -> list:
 
 async def get_users_to_newsletter(expired_time: int) -> list:
     async with async_session() as session:
-        query = select(User.id).where(User.status == "alive", User.newsletter_sended == False).filter((User.state_updated_at + timedelta(minutes=expired_time) <= datetime.now()))
+        query = select(User.id).where(User.status == "alive", User.newsletter_sended == False).filter((User.registration_date + timedelta(minutes=expired_time) <= func.now()))
         result = await session.execute(query)
 
     return result.scalars().all()
