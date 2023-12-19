@@ -6,7 +6,7 @@ from aiogram.utils.exceptions import BadRequest
 
 from src.common import dp
 from texts import menu_registration, menu_about_web, menu_about_anastasia, menu_present, main_menu
-from kbs import register_button
+import kbs
 import src.constants as constants
 import src.models.db as db
 
@@ -14,8 +14,13 @@ import src.models.db as db
 
 @dp.message_handler(Text("Регистрация🌸"))
 async def registration_handler(message: types.Message):
-    await message.answer(menu_registration, reply_markup=register_button)
-    await db.update_state(message.from_id, "waiting_gift")
+    await message.answer(menu_registration, reply_markup=kbs.register_button_callback)
+    #await db.update_state(message.from_id, "waiting_gift") #Only on button
+
+@dp.callback_query_handler(Text("register"))
+async def tapd_on_register(query: types.CallbackQuery):
+    await query.message.answer(f"Вот ссылка на саму регистрацию — {constants.URL}")
+    await db.update_state(query.from_user.id, "waiting_gift")
 
 
 @dp.message_handler(Text("Узнать о вебинаре😌"))
@@ -26,8 +31,8 @@ async def about_web_handler(message: types.Message):
     except BadRequest:
         ...
     
-    await message.answer(menu_about_web(), reply_markup=register_button)
-    await db.update_state(message.from_id, "waiting_gift")
+    await message.answer(menu_about_web(), reply_markup=kbs.register_button_callback)
+    #await db.update_state(message.from_id, "waiting_gift") #Only on button
 
 
 @dp.message_handler(Text("Об Анастасии⭐️"))
