@@ -24,6 +24,6 @@ async def start_handler(message: types.Message):
 @dp.message_handler(state=States.get_name)
 async def register_user_handler(message: types.Message, state: FSMContext):
     await db.registrate_if_not_exists(message.from_id, message.text)
-    text = "Спасибо большое !🌸\n" + main_menu
+    text = "Спасибо большое !\n" + main_menu
     await message.answer(text, reply_markup=main_board)
     await state.finish()
