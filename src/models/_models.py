@@ -1,12 +1,14 @@
 from sqlalchemy.orm import declarative_base, mapped_column, Mapped
 
+
 from sqlalchemy import (
     BIGINT,
     String,
     TIMESTAMP,
     func,
     text,
-    Boolean
+    Boolean,
+    ClauseElement
 )
 
 from datetime import datetime
@@ -28,6 +30,7 @@ class User(Base):
     state_updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
 
     status: Mapped[str] = mapped_column(String(32), server_default=text("'alive'"))  # Alive | dead
+    before_web: Mapped[int] = mapped_column(server_default="0")
 
 
 class Sending(Base):

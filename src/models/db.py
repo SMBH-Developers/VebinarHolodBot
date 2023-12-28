@@ -42,8 +42,17 @@ async def update_sent_sendings(id_: int):
     async with async_session() as session:
         await session.execute(update(Sending).where(Sending.user_id == id_).values(sent_at=func.now()))
         await session.commit()
+        
+async def get_before_web(id_):
+    async with async_session() as session:
+        result = await session.execute(select(User.before_web).where(User.id == id_))
+        
+    return result.scalars().one()
 
-
+async def set_before_web(id_: int, before_web: int):
+    async with async_session() as session:
+        await session.execute(update(User).values(before_web=before_web).where(User.id == id_))
+        await session.commit()
 # async def delete_user(id_: int):
 #     query = delete(User).where(User.id == id_)
 
