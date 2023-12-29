@@ -30,6 +30,14 @@ async def scheduler_job():
     for user in users:
         await nwsl.send_notification_before_webinar(user[0], user[1])
 
+    
+async def the_next_day_job():
+    users = await db.the_next_day_users()
+    logger.info(f"USERS TO NEXT_DAY {users}")
+    for user in users:
+        await nwsl.next_day_notif(user)
+
+
 async def gifts():
     while True:
         users = await db.get_users_to_gift(10)
@@ -52,12 +60,14 @@ async def newsletter():
 
 
 async def on_startup(_):
-    asyncio.create_task(gifts())
-    asyncio.create_task(newsletter())
+    #asyncio.create_task(gifts())
+    #asyncio.create_task(newsletter())
+    ...
 
 scheduler = AsyncIOScheduler()
 # scheduler.add_jobstore()
 scheduler.add_job(scheduler_job, "cron", minute=0, hour=18)
+scheduler.add_job(the_next_day_job, "cron", minute=0, hour=18)
 scheduler.start()
 
 try:

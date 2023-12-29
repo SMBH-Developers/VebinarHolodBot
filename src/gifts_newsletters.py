@@ -58,4 +58,10 @@ async def send_notification_before_webinar(user_id: id, name: str):
     await db.set_before_web(user_id, get_counts)
     logger.info(f"Newsletter hour before web USER={user_id}")
 # asyncio.run(after_registration())
+
+
+@catch_errors
+async def next_day_notif(user_id: int):
+    await bot.send_message(user_id, texts.the_next_day)
+    print(f"Sended 'next day notification' to {user_id=}")
     
