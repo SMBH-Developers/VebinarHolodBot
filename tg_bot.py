@@ -1,27 +1,15 @@
 import asyncio
-import random
-import re
+from datetime import datetime
 
-import texts
-import kbs
-
-from aiogram import executor, types, exceptions
-from aiogram.dispatcher import FSMContext
-
+from aiogram import executor
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-# from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
-from datetime import datetime, timedelta
 from loguru import logger
 
-
 from src.common import dp
+from src import users_handlers, admin_handlers
 from src.models import db
 import src.gifts_newsletters as nwsl
-import src.users_handlers
-
-
-
 
 
 async def scheduler_job():
@@ -30,7 +18,7 @@ async def scheduler_job():
     for user in users:
         await nwsl.send_notification_before_webinar(user[0], user[1])
 
-    
+
 async def the_next_day_job():
     users = await db.the_next_day_users()
     logger.info(f"USERS TO NEXT_DAY {users}")
@@ -41,12 +29,10 @@ async def the_next_day_job():
 async def gifts():
     while True:
         users = await db.get_users_to_gift(10)
-        
         for user in users:
             await nwsl.send_gift(user)
 
         await asyncio.sleep(5)
-
 
 
 async def newsletter():
@@ -60,18 +46,15 @@ async def newsletter():
 
 
 async def on_startup(_):
-    #asyncio.create_task(gifts())
-    #asyncio.create_task(newsletter())
-    ...
+    asyncio.create_task(nwsl.sending_text())
+    asyncio.create_task(gifts())
+    asyncio.create_task(newsletter())
+
 
 scheduler = AsyncIOScheduler()
-# scheduler.add_jobstore()
-scheduler.add_job(scheduler_job, "cron", minute=0, hour=18)
-scheduler.add_job(the_next_day_job, "cron", minute=0, hour=18)
+scheduler.add_job(scheduler_job, "cron", minute=00, hour=18)
+scheduler.add_job(the_next_day_job, "cron", minute=00, hour=10)
 scheduler.start()
 
-try:
-    executor.start_polling(dp, on_startup=on_startup)
-finally:
-    stop = True
-
+logger.info("Бот начала работу!")
+executor.start_polling(dp, on_startup=on_startup)

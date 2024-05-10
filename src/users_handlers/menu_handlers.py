@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from aiogram import types
 from aiogram.dispatcher.filters import Text
 import asyncio
@@ -11,11 +13,10 @@ import src.constants as constants
 import src.models.db as db
 
 
-
 @dp.message_handler(Text("Регистрация🌸"))
 async def registration_handler(message: types.Message):
     await message.answer(menu_registration, reply_markup=kbs.register_button_callback)
-    #await db.update_state(message.from_id, "waiting_gift") #Only on button
+
 
 @dp.callback_query_handler(Text("register"))
 async def tapd_on_register(query: types.CallbackQuery):
@@ -26,25 +27,24 @@ async def tapd_on_register(query: types.CallbackQuery):
 @dp.message_handler(Text("Узнать о вебинаре😌"))
 async def about_web_handler(message: types.Message):
     try:
-        await message.answer_video_note(video_note=constants.VIDEO_NOTE_ID)
+        await message.answer_video_note(video_note=types.InputFile(Path('data/media/video.mp4')))
 
     except BadRequest:
         ...
     
     await message.answer(menu_about_web(), reply_markup=kbs.register_button_callback)
-    #await db.update_state(message.from_id, "waiting_gift") #Only on button
 
 
 @dp.message_handler(Text("Об Анастасии⭐️"))
 async def about_anastasia_handler(message: types.Message):
-    await message.answer_photo(photo=constants.ANASTASIA_ID)
+    await message.answer_photo(photo=types.InputFile(str(Path('data/media/anastasia.jpeg'))))
     await message.answer(menu_about_anastasia)
 
 
 @dp.message_handler(Text("Подарок🙌"))
 async def present_handler(message: types.Message):
     await message.answer(menu_present)
-    await message.answer_document(document=constants.GIFT_ID)
+    await message.answer_document(document=types.InputFile(str(Path('data/media/ресурсные действия 01.pdf'))))
 
 
 # @dp.message_handler(content_types=types.ContentType.ANY)

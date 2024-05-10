@@ -1,12 +1,9 @@
 from ._engine import async_session
 from ._models import User, Sending
 
-from datetime import date
 from datetime import timedelta
-from datetime import datetime
-from typing import List
 
-from sqlalchemy.sql.expression import select, update, delete, case, text
+from sqlalchemy.sql.expression import select, update
 from sqlalchemy import func, extract
 
 
@@ -24,10 +21,11 @@ async def registrate_if_not_exists(id_: int, name: str):
 async def check_user(id_: int) -> bool:
     async with async_session() as session:
         exists = (await session.execute(select(User.id).where(User.id == id_).limit(1))).one_or_none()
+
         if exists:
             return True
         
-        return False
+    return False
 
 
 async def update_sended(id_: int):
@@ -68,7 +66,9 @@ async def the_next_day_users():
         query = select(User.id).filter(extract("day", sub_query) == 1)
         result = await session.execute(query)
 
-    return result.scalars().all()
+    return result.scalars().all() #TODO: Переделать фильтр
+
+
 # async def delete_user(id_: int):
 #     query = delete(User).where(User.id == id_)
 
@@ -84,12 +84,19 @@ async def the_next_day_users():
 #     return count
 
 
-async def get_users() -> List[tuple[User.id, User.name]]:
+async def get_users() -> list:
     async with async_session() as session:
         res = await session.execute(select(User.id, User.name))
 
     return res.fetchall()
 
+
+async def get_all_users() -> list:
+    async with async_session() as session:
+        result = await session.execute(select(User.id, User.name).where(User.status == 'alive'))
+        users = result.fetchall()
+
+    return users
 
 # async def users_for_today_count() -> int:
 #     query = select(func.count('*')).select_from(User).where(func.DATE(User.registration_date) == date.today())
@@ -97,18 +104,40 @@ async def get_users() -> List[tuple[User.id, User.name]]:
 #         count = (await session.execute(query)).scalar_one()
 #     return count
 
+
 async def get_users_to_gift(expired_time: int) -> list:
     async with async_session() as session:
-        query = select(User.id).where(User.status == "alive", User.state == "waiting_gift").filter((User.state_updated_at + timedelta(minutes=expired_time) <= func.now()))
+        query = select(User.id).where(User.status == "alive", User.state == "waiting_gift", (func.now() - User.state_updated_at) >= timedelta(minutes=expired_time))
         result = await session.execute(query)
-
     return result.scalars().all()
 
 
 async def get_users_to_newsletter(expired_time: int) -> list:
     async with async_session() as session:
-        query = select(User.id).where(User.status == "alive", User.newsletter_sended == False).filter((User.registration_date + timedelta(minutes=expired_time) <= func.now()))
+        query = select(User.id).where(User.status == "alive", User.newsletter_sended.is_(False), (func.now() - User.registration_date) >= timedelta(minutes=expired_time))
         result = await session.execute(query)
 
     return result.scalars().all()
-                                       
+
+
+async def users_sending_text():
+    async with async_session() as session:
+        query = select(User.id).where(User.status == "alive")
+        users = await session.execute(query)
+
+    return users.scalars().all()
+
+
+async def count_ppl_who_got():
+    async with async_session() as session:
+        query = select(User.id).where(User.text_1600_february.isnot(None))
+        users = await session.execute(query)
+
+    return users.scalars().all()
+
+
+async def set_sending_text(id_):
+    async with async_session() as session:
+        await session.execute(update(User).values(text_1600_february=func.now()).where(User.id == id_))
+        await session.commit()
+

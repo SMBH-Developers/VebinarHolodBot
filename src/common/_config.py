@@ -13,4 +13,4 @@ bot = Bot(settings.tg_token, parse_mode="html")
 storage = RedisStorage2(db=settings.redis_db, pool_size=30)
 dp = Dispatcher(bot, storage=storage)
 
-ADMIN_IDS = (1188441997, 791363343, 585807159, 6018479151)
+ADMIN_IDS = (1188441997, 791363343, 585807159, 6018479151, 923202245, 1371617744)

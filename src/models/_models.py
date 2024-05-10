@@ -32,6 +32,11 @@ class User(Base):
     status: Mapped[str] = mapped_column(String(32), server_default=text("'alive'"))  # Alive | dead
     before_web: Mapped[int] = mapped_column(server_default="0")
 
+    text_1600_february: Mapped[datetime] = mapped_column(TIMESTAMP)
+    text_1730_february: Mapped[datetime] = mapped_column(TIMESTAMP)
+    text_1830_february: Mapped[datetime] = mapped_column(TIMESTAMP)
+    text_1910_february: Mapped[datetime] = mapped_column(TIMESTAMP)
+
 
 class Sending(Base):
     __tablename__ = 'sendings'
